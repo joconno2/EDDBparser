@@ -1,7 +1,7 @@
 # Jim O'Connor
 # 6/11/2015
 # 
-# Populates a SQLite database from EDDB system data
+# Populates a SQLite database from EDDB system and station data
 
 
 import json
@@ -10,9 +10,9 @@ from os import remove
 from collections import OrderedDict
 
 #parses the data from a supplied systems.json
-def getData():
+def getData(fileName,recordNumber):
 
-	file = open('systems.json','r')
+	file = open(fileName,'r')
 	fileString = file.read()
 	file.close()
 
@@ -35,10 +35,13 @@ def getData():
 		
 	for item in json_list:
 		for subitem in item:
-			stripped_list.append(subitem[1])
+			if not(isinstance(subitem[1], (str,int))):
+				stripped_list.append(str(subitem[1]))
+			else:
+				stripped_list.append(subitem[1])
 
-	for i in range(0, len(stripped_list), 14):
-		results_list.append(tuple(stripped_list[i:i+14]))
+	for i in range(0, len(stripped_list), recordNumber):
+		results_list.append(tuple(stripped_list[i:i+recordNumber]))
 	
 	return results_list
 	
@@ -47,8 +50,8 @@ def getData():
 	
 def main():
 	#clean up any existing DB and create the new one
-	remove("systemData.db")
-	conn = sqlite3.connect("systemData.db")
+	remove("eliteData.db")
+	conn = sqlite3.connect("eliteData.db")
  
 	cursor = conn.cursor()
 
@@ -56,9 +59,19 @@ def main():
                   (id,name,x,y,z,faction,population,goverment,allegiance,
 				  state,security,primary_economy,needs_permit,updated_at) 
                """)
+	cursor.execute("""CREATE TABLE stations
+                  (id,name,system_id,max_landing_pad_size,distance_to_star,
+				  faction,government,allegiance,state,type,has_blackmarket,
+				  has_commodities,has_refuel,has_repair,has_rearm,
+				  has_outfitting,has_shipyard,import_commodities,
+				  export_commodities,prohibited_commodities,economies,
+				  updated_at) 
+               """)
 			
 	#get the data from the previous function and populate the DB
-	systemData = getData()
+	systemData = getData('systems.json',14)
+	stationData = getData('stations.json',22)
 	cursor.executemany("INSERT INTO systems VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (systemData))
+	cursor.executemany("INSERT INTO stations VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (stationData))
 	conn.commit()
 main()
