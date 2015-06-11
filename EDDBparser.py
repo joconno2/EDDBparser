@@ -7,6 +7,7 @@
 import json
 import sqlite3
 from os import remove
+from os import path
 from collections import OrderedDict
 
 #parses the data from a supplied systems.json
@@ -50,7 +51,10 @@ def getData(fileName,recordNumber):
 	
 def main():
 	#clean up any existing DB and create the new one
-	remove("eliteData.db")
+	
+	if path.isfile("eliteData.db"):
+		remove("eliteData.db")
+	
 	conn = sqlite3.connect("eliteData.db")
  
 	cursor = conn.cursor()
