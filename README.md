@@ -1,5 +1,5 @@
 # EDDBparser
-A small python script that takes a system data JSON from EDDB.io and populates a SQLite database
+A small python script that takes data in the form of JSON files from eddb.io and populates a SQLite database. Data is provided by users from the Elite: Dangerous video game.
 
 USE
 ---
@@ -7,4 +7,4 @@ The script expects a systems.json and a stations.json in the working directory. 
 
 TODO
 ---
-Add support for commodoties and build an interface to do anything that eddb.io may not do.
+Add support for commodities and build an interface to do anything that eddb.io may not do.
